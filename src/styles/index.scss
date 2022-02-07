@@ -1,13 +1,23 @@
 @import "~bootstrap/scss/bootstrap.scss";
+html, body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+    box-sizing: border-box;
+    display: flex;
+    background-color: aqua;
+}
+body{
+    width: 900px;
+    align-items: center;
+    background-color: white;
+}
 
-/* 
-
-    You can write your own styles here...
-    
-    
-    ...Or you can use the import command to include 
-    other sylesheets into your bunde as well, e.j:
-    
-    import 'relative/path/to/stylesheet.scss';
-
-*/
+h1 {
+  font-size: 5em;
+  text-align: center;
+}
+.tasklefttext {
+  font-size: 1.3em;
+  font-weight: bold;
+}
