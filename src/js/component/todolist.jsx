@@ -1,22 +1,85 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const Todolist = () => {
-	const [todo, setTodo] = useState("");
+	// const [todo, setTodo] = useState("");
 	const [todolist, setTodolist] = useState([]);
 	const [hover, setHover] = useState(-1);
+	const url = "https://assets.breatheco.de/apis/fake/todos/user/";
 
-	const newtodo = e => {
-		if (e.key == "Enter") {
-			if (todo.trim() != "") {
-				setTodolist([...todolist, todo]);
-			}
-			setTodo("");
+	const onKeypress = e => {
+		if (e.key === "Enter" && e.target.value !== "") {
+			todolist.push({ label: e.target.value, done: false });
+			setTodolist([...todolist]);
+			todolist.length == 1 ? createCatirem() : updateTodo();
+			e.target.value = "";
 		}
 	};
-	const borrar = id => {
-		const newToDo = todolist.filter((task, index) => index != id);
-		setTodolist(newToDo);
+
+	const createCatirem = () => {
+		fetch(`${url}Catirem`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(todolist)
+		})
+			.then(response => response.json())
+			.then(data => {
+				updateTodo();
+			})
+			.catch(error => console.log(error));
 	};
+
+	useEffect(() => {
+		getTodolist();
+	}, []);
+	const getTodolist = () => {
+		fetch(`${url}Catirem`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json"
+			}
+		})
+			.then(response => {
+				return response.json();
+			})
+			.then(data => {
+				if (Array.isArray(data)) {
+					setTodolist(data);
+				}
+			})
+			.catch(error => {
+				console.log(error);
+			});
+	};
+
+	const updateTodo = () => {
+		fetch(`${url}Catirem`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(todolist)
+		})
+			.then(response => response.json())
+			.then(data => {
+				console.log(data);
+			})
+			.catch(error => console.log(error));
+	};
+
+	const Nuke = () => {
+		fetch(`${url}Catirem`, {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json"
+			}
+		})
+			.then(response => response.json())
+			.then(data => {})
+			.catch(error => console.log(error));
+	};
+
 	return (
 		<div className="card text-center">
 			<div className="card text-center">
@@ -30,10 +93,8 @@ const Todolist = () => {
 								className=""
 								type="text"
 								placeholder="Escribe aqui"
-								value={todo}
 								name="text"
-								onChange={e => setTodo(e.target.value)}
-								onKeyDown={newtodo}></input>
+								onKeyUp={e => onKeypress(e)}></input>
 						</h5>
 						<p className="card-text">
 							Escribe un todo y presiona Enter
@@ -49,10 +110,15 @@ const Todolist = () => {
 									key={i}
 									onMouseEnter={() => setHover(i)}
 									onMouseLeave={() => setHover(-1)}>
-									{task}
+									{task.label}
 									<div
 										onClick={() => {
-											borrar(i);
+											todolist.splice(i, 1);
+											setTodolist([...todolist]);
+
+											todolist.length === 0
+												? Nuke()
+												: updateTodo();
 										}}
 										className={
 											hover === i
